@@ -1,17 +1,52 @@
-from flask import Flask
-from datetime import datetime
+from flask import Flask, request, jsonify
+from requests import get
+
 app = Flask(__name__)
 
 @app.route('/')
-def homepage():
-    the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
+def hello_world():
+   return 'pagina inicial'
 
-    return """
-    <h1>Hello heroku</h1>
-    <p>It is currently {time}.</p>
+@app.route('/api')
+def api():
+   query = request.args.get('query')
 
-    <img src="http://loremflickr.com/600/400" />
-    """.format(time=the_time)
+   if query is None:
+      return "paramentro 'query' não especificado"
+
+   headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+   r = get(f"https://www.giantbomb.com/api/search/?api_key=b6a60d7da93c2fc2cb3d5256ac814ff324be71eb&query={query}&format=json", headers=headers).json()
+
+   games = []
+
+   for i in r['results']:
+
+      name = i['name']
+      icon_url = i['image']['icon_url']
+      thumb = i['image']['thumb_url']
+      full_size = i['image']['original_url']
+
+
+
+      platforms = []
+
+      if 'platforms' in i:
+         for p in i['platforms']:
+               platforms.append(p['name'])
+
+      data = {
+         'nome': name,
+         'imagens': {
+               'pequena': icon_url,
+               'media': thumb,
+               'original': full_size
+         },
+         'plataformas': ';'.join(platforms)
+      }
+
+      games.append(data)
+   
+   return jsonify(games)
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True)
