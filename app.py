@@ -50,7 +50,7 @@ def homepage():
 def seachById():
     game_id = request.args.get('id')
     if game_id is None:
-        return "paramentro 'query' não especificado"
+        return "paramentro 'game_id' não especificado"
 
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
     r = get(f"https://www.giantbomb.com/api/game/{game_id}/?api_key=b6a60d7da93c2fc2cb3d5256ac814ff324be71eb&format=json", headers=headers).json()
